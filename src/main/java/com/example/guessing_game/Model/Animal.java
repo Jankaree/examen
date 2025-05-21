@@ -1,4 +1,4 @@
-package com.example.guessing_game;
+package com.example.guessing_game.Model;
 
 import java.util.Arrays;
 
@@ -10,6 +10,8 @@ public class Animal {
     private String name_of_young;
     private String skin_type;
 
+    private int locationInt = 2;
+
     public Animal(String name, String habitat, String diet, String[] locations, String name_of_young, String skin_type) {
         this.name = name;
         this.habitat = habitat;
@@ -17,6 +19,14 @@ public class Animal {
         this.locations = locations;
         this.name_of_young = name_of_young;
         this.skin_type = skin_type;
+    }
+
+    public int getLocationInt() {
+        return locationInt;
+    }
+
+    public void setLocationInt(int locationInt) {
+        this.locationInt = locationInt;
     }
 
     @Override

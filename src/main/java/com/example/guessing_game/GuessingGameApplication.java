@@ -11,3 +11,15 @@ public class GuessingGameApplication {
     }
 
 }
+
+
+/*
+TODO
+
+userpage syling
+general styling
+svg file image
+ */
+
+
+

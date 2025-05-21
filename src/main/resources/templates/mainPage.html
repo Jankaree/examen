@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Animal Guessing Game</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/node_modules/flowbite/dist/flowbite.js"></script>
+    <link rel="stylesheet" href="/css/output.css">
+
+    <style>
+        body {
+            background-image: url('/images/animaldleBG.jpg'); /* Path to your background image */
+            background-size: cover; /* Ensures the image covers the entire page */
+            background-position: center; /* Centers the image */
+            background-attachment: fixed; /* Keeps the image fixed while scrolling */
+        }
+
+    </style>
+
+</head>
+<body>
+
+
+<nav class="bg-green-900 relative z-10 border-gray-200 dark:bg-gray-900 shadow-lg bg-opacity-50 backdrop-blur-sm">
+    <div class="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl p-4">
+        <a href="https://flowbite.com" class="flex items-center space-x-3 rtl:space-x-reverse">
+            <img src="/images/DALL·E%202024-12-11%2016.33.17%20-%20A%20transparent%20image%20with%20only%20the%20text%20'ANIMAL'%20on%20the%20top%20line%20and%20'GUESS'%20on%20the%20bottom%20line,%20spelled%20correctly,%20in%20large,%20bold,%20and%20colorful%20letter.webp" class="h-8" alt="Flowbite Logo" />
+            <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Animal Guess</span>
+        </a>
+
+        <div th:if="${!isLoggedIn}">>
+
+            <a th:href="@{/loginPage}"> login</a>
+            <a th:href="@{/register}"> Sign up</a>
+
+        </div>
+
+        <div class="flex items-center space-x-6 rtl:space-x-reverse" th:if="${isLoggedIn}">
+            <button id="dropdownAvatarNameButton" data-dropdown-toggle="dropdownAvatarName" class="flex items-center text-sm pe-1 font-medium text-gray-300 rounded-full hover:text-blue-400 md:me-0 focus:ring-4 focus:ring-gray-600" type="button">
+                <span class="sr-only">Open user menu</span>
+                <img src="/images/default-avatar-profile-trendy-style-social-media-user-icon-187599373.webp" alt="user photo" style="width: 32px; height: 32px; object-fit: cover; border-radius: 50%;">
+                <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                </svg>
+            </button>
+
+
+            <div id="dropdownAvatarName" class="z-10 hidden bg-gray-800 divide-y divide-gray-700 rounded-lg shadow w-44">
+                <div class="px-4 py-3 text-sm text-gray-300">
+                    <div class="font-medium"><span th:text="${User.username}"></span></div>
+                    <div class="truncate"><p>Points: <span th:text="${User.points}"></span></p></div>
+                </div>
+                <ul class="py-2 text-sm text-gray-300">
+                    <li>
+                        <a th:href="@{/user/{username}(username=${User.username})}" class="block px-4 py-2 hover:bg-gray-700">Profile</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/user/{username}(username=${User.username})}" class="block px-4 py-2 hover:bg-gray-700">Settings</a>
+                    </li>
+                </ul>
+                <div class="py-2">
+                    <a th:href="@{/perform_logout}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Sign out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+
+
+
+
+
+
+<div class="flex items-center justify-center">
+    <a href="https://flowbite.com" class="flex items-center space-x-3 rtl:space-x-reverse">
+        <img src="/images/DALL·E%202024-12-11%2016.33.17%20-%20A%20transparent%20image%20with%20only%20the%20text%20'ANIMAL'%20on%20the%20top%20line%20and%20'GUESS'%20on%20the%20bottom%20line,%20spelled%20correctly,%20in%20large,%20bold,%20and%20colorful%20letter.webp"  style="height: 256px;"  alt="Flowbite Logo" />
+    </a>
+</div>
+
+<div class="flex items-start justify-center min-h-screen pt-16">
+    <div class="bg-green-900 border-gray-200 dark:bg-gray-900 shadow-lg bg-opacity-50 backdrop-blur-sm p-4" style="width: auto; display: inline-block;">
+        <h3 class="text-2xl font-bold text-black mb-2">How to play:</h3>
+        <p class="text-sm text-black">Guess an animal to start the game, once you have guessed you will get the guessed animals name, habitat, diet, location, name of young and skin type.
+           <br> Based on the background of these atributes you are able to figure out the correct animal.
+        if the background is Green it means the correct animal <br>
+            as the same atribute as the guessed on, if the background is yellow it means its partly right and if the background is red it means that its wrong.
+            <br> you can make as many guesses as you want!</p>
+        <br>
+        <br>
+        <button
+                onclick="window.location.href='/classicgame'"
+                class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:ring focus:ring-blue-300">
+            Play
+        </button>
+    </div>
+
+
+
+</div>
+
+
+
+</div>
+</body>
+</html>

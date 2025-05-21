@@ -1,0 +1,13 @@
+.correct {
+    color: green;
+    font-weight: bold;
+}
+.false {
+    color: red;
+    font-weight: bold;
+}
+.partly {
+    color: orange;
+    font-weight: bold;
+}
+

@@ -1,10 +1,269 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Animal Guessing Game</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/node_modules/flowbite/dist/flowbite.js"></script>
+    <link rel="stylesheet" href="/css/output.css">
+
+    <style>
+        body {
+            background-image: url('/images/animaldleBG.jpg'); /* Path to your background image */
+            background-size: cover; /* Ensures the image covers the entire page */
+            background-position: center; /* Centers the image */
+            background-attachment: fixed; /* Keeps the image fixed while scrolling */
+        }
+
+    </style>
+
 </head>
 <body>
 
+
+<nav class="bg-green-900 relative z-10 border-gray-200 dark:bg-gray-900 shadow-lg bg-opacity-50 backdrop-blur-sm">
+    <div class="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl p-4">
+        <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
+            <img src="/images/DALL·E%202024-12-11%2016.33.17%20-%20A%20transparent%20image%20with%20only%20the%20text%20'ANIMAL'%20on%20the%20top%20line%20and%20'GUESS'%20on%20the%20bottom%20line,%20spelled%20correctly,%20in%20large,%20bold,%20and%20colorful%20letter.webp" class="h-8" alt="Flowbite Logo" />
+            <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Animal Guess</span>
+        </a>
+
+        <div th:if="${!isLoggedIn}">>
+
+            <a th:href="@{/loginPage}"> login</a>
+            <a th:href="@{/register}"> Sign up</a>
+
+        </div>
+
+        <div class="flex items-center space-x-6 rtl:space-x-reverse" th:if="${isLoggedIn}">
+            <button id="dropdownAvatarNameButton" data-dropdown-toggle="dropdownAvatarName" class="flex items-center text-sm pe-1 font-medium text-gray-300 rounded-full hover:text-blue-400 md:me-0 focus:ring-4 focus:ring-gray-600" type="button">
+                <span class="sr-only">Open user menu</span>
+                <img src="/images/default-avatar-profile-trendy-style-social-media-user-icon-187599373.webp" alt="user photo" style="width: 32px; height: 32px; object-fit: cover; border-radius: 50%;">
+                <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                </svg>
+            </button>
+
+
+            <div id="dropdownAvatarName" class="z-10 hidden bg-gray-800 divide-y divide-gray-700 rounded-lg shadow w-44">
+                <div class="px-4 py-3 text-sm text-gray-300">
+                    <div class="font-medium"><span th:text="${User.username}"></span></div>
+                    <div class="truncate"><p>Points: <span th:text="${User.points}"></span></p></div>
+                </div>
+                <ul class="py-2 text-sm text-gray-300">
+                    <li>
+                        <a th:href="@{/user/{username}(username=${User.username})}" class="block px-4 py-2 hover:bg-gray-700">Profile</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/user/{username}(username=${User.username})}" class="block px-4 py-2 hover:bg-gray-700">Settings</a>
+                    </li>
+                </ul>
+                <div class="py-2">
+                    <a th:href="@{/perform_logout}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Sign out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+
+
+
+
+
+
+<div class="flex items-center justify-center">
+    <a href="https://flowbite.com" class="flex items-center space-x-3 rtl:space-x-reverse">
+        <img src="/images/DALL·E%202024-12-11%2016.33.17%20-%20A%20transparent%20image%20with%20only%20the%20text%20'ANIMAL'%20on%20the%20top%20line%20and%20'GUESS'%20on%20the%20bottom%20line,%20spelled%20correctly,%20in%20large,%20bold,%20and%20colorful%20letter.webp"  style="height: 256px;"  alt="Flowbite Logo" />
+    </a>
+</div>
+
+<br>
+<br>
+<br>
+<br>
+
+<div class="flex items-center justify-center">
+    <form th:action="@{/guess}" method="post" class="flex items-center flex-col relative">
+        <label for="name" class="sr-only">Enter Animal Name:</label>
+        <div class="relative w-full max-w-md">
+            <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    class="w-full bg-gray-50 border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    placeholder="Enter Animal Name"
+                    autocomplete="off"
+                    oninput="updateSuggestions()"
+                    required
+            />
+            <ul id="suggestions"
+                class="absolute left-0 right-0 hidden bg-white border border-gray-300 rounded-lg shadow-lg z-20 mt-1">
+
+            </ul>
+        </div>
+        <button
+                type="submit"
+                id="submitButton"
+                class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:ring focus:ring-blue-300"
+                disabled>
+            Guess
+        </button>
+    </form>
+</div>
+
+<div id="game" th:fragment="game">
+
+    <div th:if="${previousGuesses != null and !previousGuesses.isEmpty()}">
+
+        <div class="flex items-center justify-center" th:each="prevAnimal : ${previousGuesses}">
+            <div class="p-4 border rounded-lg bg-gray-50 shadow-md ">
+
+
+
+                <div class="flex space-x-2">
+                    <div class="w-52 h-52 flex items-center justify-center text-center rounded"
+                         th:classappend="${prevAnimal.name == correctAnimal.getName() ? 'bg-green-200' : 'bg-red-200'}">
+                        <p>
+
+                            <span th:text="${prevAnimal.name}"></span>
+                        </p>
+                    </div>
+
+                    <div class="w-52 h-52 flex items-center justify-center text-center rounded "
+                         th:classappend="${prevAnimal.habitat == correctAnimal.habitat ? 'bg-green-200' : 'bg-red-200'}">
+                        <p>
+                            <span th:text="${prevAnimal.habitat}"></span>
+                        </p>
+                    </div>
+
+                    <div class="w-52 h-52 flex items-center justify-center text-center rounded "
+                         th:classappend="${prevAnimal.diet == correctAnimal.diet ? 'bg-green-200' : 'bg-red-200'}">
+                        <p>
+                            <span th:text="${prevAnimal.diet}"></span>
+                        </p>
+                    </div>
+
+                    <div class="w-52 h-52 flex items-center justify-center text-center rounded"
+                         th:classappend="${prevAnimal.locationInt == 2 ? 'bg-green-200' : (prevAnimal.locationInt == 1 ? 'bg-yellow-200' : (prevAnimal.locationInt == 0 ? 'bg-red-200' : ''))}">
+                        <p>
+                            <span th:text="${prevAnimal.toString}"></span>
+                        </p>
+                    </div>
+
+
+                    <div class="w-52 h-52 flex items-center justify-center text-center rounded "
+                         th:classappend="${prevAnimal.name_of_young == correctAnimal.name_of_young ? 'bg-green-200' : 'bg-red-200'}">
+                        <p>
+                            <span th:text="${prevAnimal.name_of_young}"></span>
+                        </p>
+                    </div>
+
+                    <div class="w-52 h-52 flex items-center justify-center text-center rounded "
+                         th:classappend="${prevAnimal.skin_type == correctAnimal.skin_type ? 'bg-green-200' : 'bg-red-200'}">
+                        <p>
+                            <span th:text="${prevAnimal.skin_type}"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+
+            <hr/>
+        </div>
+    </div>
+
+
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Toggle dropdown visibility when the button is clicked
+        $('#dropdownAvatarNameButton').click(function(event) {
+            event.stopPropagation(); // Prevent click event from propagating
+            $('#dropdownAvatarName').toggleClass('hidden');
+        });
+
+        // Close the dropdown if the user clicks outside of it
+        $(document).click(function(event) {
+            if (!$(event.target).closest('#dropdownAvatarNameButton').length) {
+                $('#dropdownAvatarName').addClass('hidden');
+            }
+        });
+    });
+
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        let validAnimals = [];
+
+        // Fetch the list of animals from the server
+        fetch('/api/animals')
+            .then(response => response.json())
+            .then(data => validAnimals = data)
+            .catch(error => console.error('Error fetching animals:', error));
+
+        // Function to update suggestions
+        function updateSuggestions() {
+            const inputField = document.getElementById("name");
+            const suggestionsContainer = document.getElementById("suggestions");
+            const submitButton = document.getElementById("submitButton");
+            const inputValue = inputField.value.trim();
+
+            // Clear previous suggestions
+            suggestionsContainer.innerHTML = '';
+            suggestionsContainer.classList.add("hidden");
+
+            // If input is not empty, filter and show suggestions
+            if (inputValue) {
+                const filteredAnimals = validAnimals.filter(animal =>
+                    animal.toLowerCase().startsWith(inputValue.toLowerCase()) // Match only animals starting with the input
+                );
+
+                // Populate suggestions if matches are found
+                if (filteredAnimals.length > 0) {
+                    filteredAnimals.forEach(animal => {
+                        const suggestionItem = document.createElement("li");
+                        suggestionItem.classList.add(
+                            "px-4",
+                            "py-2",
+                            "cursor-pointer",
+                            "hover:bg-gray-200"
+                        );
+                        suggestionItem.textContent = animal;
+
+                        // Click-to-select functionality
+                        suggestionItem.onclick = () => {
+                            inputField.value = animal; // Set input to selected suggestion
+                            suggestionsContainer.classList.add("hidden"); // Hide suggestions
+                            validateInput(); // Enable the submit button
+                        };
+
+                        suggestionsContainer.appendChild(suggestionItem);
+                    });
+
+                    suggestionsContainer.classList.remove("hidden");
+                }
+            }
+
+            // Validate input and toggle submit button
+            validateInput();
+        }
+
+        // Function to validate the input
+        function validateInput() {
+            const inputField = document.getElementById("name");
+            const submitButton = document.getElementById("submitButton");
+            const inputValue = inputField.value.trim();
+
+            submitButton.disabled = !validAnimals.some(animal =>
+                animal.toLowerCase() === inputValue.toLowerCase()
+            );
+        }
+
+        // Attach the updateSuggestions function to the input field
+        document.getElementById("name").addEventListener("input", updateSuggestions);
+    });
+
+</script>
 </body>
 </html>

@@ -1,2 +1,11 @@
-package com.example.guessing_game.Repository;public interface UserRepository {
+package com.example.guessing_game.Repository;
+
+
+import com.example.guessing_game.Model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByUsername(String username);
 }
